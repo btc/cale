@@ -125,13 +125,13 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		var v EventTypesResponse
-		err = json.Unmarshal(userData, &v)
+		var eventResponse EventTypesResponse
+		err = json.Unmarshal(userData, &eventResponse)
 		if err != nil {
 			return err
 		}
 
-		uuid, found := v.UUID(slug)
+		uuid, found := eventResponse.UUID(slug)
 		if !found {
 			return errors.New("slug not found")
 		}
@@ -164,6 +164,8 @@ var rootCmd = &cobra.Command{
 			// TODO try bigger range
 			return errors.New("no slots found")
 		}
+
+		// TODO merge contiguous ranges
 
 		for _, day := range rangeResponse.Days {
 			for _, spot := range day.Spots {
@@ -245,8 +247,9 @@ func (r RangeRequest) URL() string {
 
 type EventTypesResponse struct {
 	Collection []struct {
-		URI  string `json:"uri"`
-		Slug string `json:"slug"`
+		URI             string `json:"uri"`
+		Slug            string `json:"slug"`
+		DurationMinutes int    `json:"duration"`
 	} `json:"collection"`
 }
 
