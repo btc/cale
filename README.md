@@ -26,7 +26,7 @@ Mon 22 Nov    from 5:30 PM to 7:30 PM
 ```
 ---
 
-Now, let's exclude slots that end after 6:30 PM. 
+Now, let's also exclude slots that end after 6:30 PM. 
 
 ```
 λ. cale 60m -w -e 6:30PM
