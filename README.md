@@ -9,7 +9,7 @@
 
 # usage
 
-Here, I summarize the availability data of my Calendly event named `60m`:
+Here, I summarize availability from a Calendly event named `60m`:
 ```
 λ. cale 60m
 
