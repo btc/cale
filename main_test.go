@@ -96,7 +96,7 @@ func TestEventTypes(t *testing.T) {
 	var v EventTypesResponse
 	err = json.Unmarshal(data, &v)
 	require.NoError(t, err)
-	uuid, found := v.UUID("2h")
+	uuid, _, found := v.Find("2h")
 	require.True(t, found)
 	require.Equal(t, "566ef9af-a93b-4330-94b3-ad3766a1b516", uuid)
 }

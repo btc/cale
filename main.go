@@ -131,7 +131,7 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		uuid, found := eventResponse.UUID(slug)
+		uuid, duration, found := eventResponse.Find(slug)
 		if !found {
 			return errors.New("slug not found")
 		}
@@ -165,8 +165,7 @@ var rootCmd = &cobra.Command{
 			return errors.New("no slots found")
 		}
 
-		// TODO merge contiguous ranges
-
+		var starts []time.Time
 		for _, day := range rangeResponse.Days {
 			for _, spot := range day.Spots {
 				startTime, err := time.Parse(time.RFC3339, spot.StartTime)
@@ -187,8 +186,26 @@ var rootCmd = &cobra.Command{
 				if weekdaysOnly && (startTime.Weekday() == time.Saturday || startTime.Weekday() == time.Sunday) {
 					continue
 				}
-				date := startTime.Format("Mon 02 Jan\t03:04 PM")
-				fmt.Println(date)
+				starts = append(starts, startTime)
+			}
+		}
+
+		var vals []Interval
+		for _, start := range starts {
+			v := Interval{
+				Start:    start,
+				Duration: duration,
+			}
+			vals = append(vals, v)
+		}
+
+		vals = mergeIntervals(vals)
+
+		for _, v := range vals {
+			if v.Duration > duration {
+				fmt.Println(v.StringRange())
+			} else {
+				fmt.Println(v.StringStart())
 			}
 		}
 		return nil
@@ -253,17 +270,54 @@ type EventTypesResponse struct {
 	} `json:"collection"`
 }
 
-func (r *EventTypesResponse) UUID(slug string) (string, bool) {
+func (r *EventTypesResponse) Find(slug string) (string, time.Duration, bool) {
 	for _, v := range r.Collection {
 		if v.Slug == slug {
-			return path.Base(v.URI), true
+			d := time.Duration(v.DurationMinutes) * time.Minute
+			return path.Base(v.URI), d, true
 		}
 	}
-	return "", false
+	return "", 0, false
 }
 
 type MeResponse struct {
 	Resource struct {
 		URI string `json:"uri"`
 	} `json:"resource"`
+}
+
+type Interval struct {
+	Start    time.Time
+	Duration time.Duration
+}
+
+func (v *Interval) StringStart() string {
+	return v.Start.Format("Mon 02 Jan\t03:04 PM")
+}
+
+func (v *Interval) StringRange() string {
+	date := v.Start.Format("Mon 02 Jan")
+	start := v.Start.Format("3:04 PM")
+	end := v.End().Format("3:04 PM")
+	return fmt.Sprintf("%s\tbetween %s and %s", date, start, end)
+}
+
+func (v *Interval) End() time.Time {
+	return v.Start.Add(v.Duration)
+}
+
+func mergeIntervals(sorted []Interval) []Interval {
+	var output []Interval
+	for _, current := range sorted {
+		if len(output) == 0 {
+			output = append(output, current)
+			continue
+		}
+		if current.Start.After(output[len(output)-1].End()) {
+			output = append(output, current)
+			continue
+		}
+		output[len(output)-1].Duration = current.End().Sub(output[len(output)-1].Start)
+	}
+	return output
 }
