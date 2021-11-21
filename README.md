@@ -5,11 +5,9 @@
 # getting started
 
 1. `go install github.com/btc/cale`
-1. `cale` hits the Calendly API and requires authentication. Set the value of the `CALENDLY_TOKEN` environment variable to a [Calendly personal access token](https://calendly.com/integrations/api_webhooks). Optionally, you may write the environment variable to a dotenv file in the home directory at `~/.env`.
+1. cale hits the Calendly API and requires authentication. Set the value of the `CALENDLY_TOKEN` environment variable to a [Calendly personal access token](https://calendly.com/integrations/api_webhooks). Optionally, you may write the environment variable to a dotenv file in the home directory at `~/.env`.
 
 # usage
-
-`cale` takes a single argument: the name of the event. (In truth, the argument is actually the _slug_ of the event URL.)
 
 Here, I summarize the availability data of my Calendly event named `60m`:
 ```
