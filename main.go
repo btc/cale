@@ -24,10 +24,10 @@ var startBy string
 var weekdaysOnly bool
 
 func init() {
-	rootCmd.PersistentFlags().IntVarP(&numDaysInFuture, "num-days-in-future", "n", 21, "config file (default is 21)")
-	rootCmd.PersistentFlags().BoolVarP(&weekdaysOnly, "weekdays", "w", false, "omit weekends")
-	rootCmd.PersistentFlags().StringVarP(&startBy, "start-by", "b", "", "omit start times after this time (format: 3:04 PM)")
-	rootCmd.PersistentFlags().StringVarP(&endBy, "end-by", "e", "", "omit options that end after this time (format: 3:04 PM)")
+	rootCmd.PersistentFlags().IntVarP(&numDaysInFuture, "num-days-in-future", "n", 7, "the number of days into the future to consider")
+	rootCmd.PersistentFlags().BoolVarP(&weekdaysOnly, "weekdays-only", "w", false, "show weekdays only (exclude Sat and Sun)")
+	rootCmd.PersistentFlags().StringVarP(&startBy, "start-by", "b", "", "omit start times after this time (format: 3:04PM or 3PM)")
+	rootCmd.PersistentFlags().StringVarP(&endBy, "end-by", "e", "", "omit options that end after this time (format: 3:04PM or 3PM)")
 }
 
 func main() {
@@ -51,7 +51,7 @@ func run() error {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "cale",
+	Use:   "cale [EVENT SLUG]",
 	Short: "cale is a Calendly helper",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -62,7 +62,7 @@ var rootCmd = &cobra.Command{
 		}
 		slug := s
 
-		token := os.Getenv("CALENDLY_API_KEY")
+		token := os.Getenv("CALENDLY_TOKEN")
 
 		url := url.URL{
 			Scheme: "https",
@@ -231,11 +231,8 @@ var rootCmd = &cobra.Command{
 
 func parseTimeFlag(s string) (int, int, error) {
 	formats := []string{
-		"3",
 		"3PM",
-		"3 PM",
 		"3:04PM",
-		"3:04 PM",
 	}
 	for _, format := range formats {
 		t, err := time.Parse(format, s)
@@ -316,7 +313,7 @@ func (v *Interval) StringRange() string {
 	date := v.Start.Format("Mon 02 Jan")
 	start := v.Start.Format("3:04 PM")
 	end := v.End().Format("3:04 PM")
-	return fmt.Sprintf("%s\tbetween %s and %s", date, start, end)
+	return fmt.Sprintf("%s\tfrom %s to %s", date, start, end)
 }
 
 func (v *Interval) End() time.Time {
