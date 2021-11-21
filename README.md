@@ -1,8 +1,6 @@
-# cale
-
 `cale` is a command-line utility for summarizing Calendly availability.
 
-# getting started
+# installation
 
 1. `go install github.com/btc/cale`
 1. cale hits the Calendly API and requires authentication. Set the value of the `CALENDLY_TOKEN` environment variable to a [Calendly personal access token](https://calendly.com/integrations/api_webhooks). Optionally, you may write the environment variable to a dotenv file in the home directory at `~/.env`.
