@@ -17,6 +17,7 @@ Sun 21 Nov    from 12:00 PM to 3:00 PM
 Mon 22 Nov    02:30 PM
 Mon 22 Nov    from 5:30 PM to 7:30 PM
 ```
+---
 
 Let's see weekdays only:
 ```
@@ -25,8 +26,10 @@ Let's see weekdays only:
 Mon 22 Nov    02:30 PM
 Mon 22 Nov    from 5:30 PM to 7:30 PM
 ```
+---
 
-Now, let's exclude slots that end after 6:30. Note that the output displays time ranges (from... to...) only when useful. Otherwise, availability is simply represented by start time.
+Now, let's exclude slots that end after 6:30 PM. 
+
 ```
 λ. cale 60m -w -e 6:30PM
 
@@ -34,6 +37,9 @@ Sun 21 Nov    from 12:00 PM to 3:00 PM
 Mon 22 Nov    02:30 PM
 Mon 22 Nov    05:30 PM
 ```
+💡 Note that the output displays time ranges (from... to...) only when useful. Otherwise, availability is simply represented by start time.
+
+---
 
 Let's see up to 21 days into the future:
 ```
