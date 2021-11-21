@@ -19,13 +19,15 @@ import (
 )
 
 var numDaysInFuture int
-var before string
+var endBy string
+var startBy string
 var weekdaysOnly bool
 
 func init() {
 	rootCmd.PersistentFlags().IntVarP(&numDaysInFuture, "num-days-in-future", "n", 21, "config file (default is 21)")
 	rootCmd.PersistentFlags().BoolVarP(&weekdaysOnly, "weekdays", "w", false, "omit weekends")
-	rootCmd.PersistentFlags().StringVarP(&before, "before", "b", "", "omit start times after this time (format: 3:04 PM)")
+	rootCmd.PersistentFlags().StringVarP(&startBy, "start-by", "b", "", "omit start times after this time (format: 3:04 PM)")
+	rootCmd.PersistentFlags().StringVarP(&endBy, "end-by", "e", "", "omit options that end after this time (format: 3:04 PM)")
 }
 
 func main() {
@@ -168,25 +170,40 @@ var rootCmd = &cobra.Command{
 		var starts []time.Time
 		for _, day := range rangeResponse.Days {
 			for _, spot := range day.Spots {
-				startTime, err := time.Parse(time.RFC3339, spot.StartTime)
+				start, err := time.Parse(time.RFC3339, spot.StartTime)
 				if err != nil {
 					return err
 				}
-				if before != "" {
-					timeOfDay, err := parseBefore(before)
+				if startBy != "" {
+					h, min, err := parseTimeFlag(startBy)
 					if err != nil {
 						return err
 					}
-					y, m, d := startTime.Date()
-					cutoff := time.Date(y, m, d, timeOfDay.Hour(), timeOfDay.Minute(), 0, 0, startTime.Location())
-					if startTime.After(cutoff) {
+					y, m, d := start.Date()
+					cutoff := time.Date(y, m, d, h, min, 0, 0, start.Location())
+					if start.After(cutoff) {
 						continue
 					}
 				}
-				if weekdaysOnly && (startTime.Weekday() == time.Saturday || startTime.Weekday() == time.Sunday) {
+
+				if endBy != "" {
+					h, min, err := parseTimeFlag(endBy)
+					if err != nil {
+						return err
+					}
+					y, m, d := start.Date()
+					cutoff := time.Date(y, m, d, h, min, 0, 0, start.Location())
+
+					end := start.Add(duration)
+					if end.After(cutoff) {
+						continue
+					}
+				}
+
+				if weekdaysOnly && (start.Weekday() == time.Saturday || start.Weekday() == time.Sunday) {
 					continue
 				}
-				starts = append(starts, startTime)
+				starts = append(starts, start)
 			}
 		}
 
@@ -212,7 +229,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func parseBefore(s string) (time.Time, error) {
+func parseTimeFlag(s string) (int, int, error) {
 	formats := []string{
 		"3",
 		"3PM",
@@ -225,9 +242,9 @@ func parseBefore(s string) (time.Time, error) {
 		if err != nil {
 			continue
 		}
-		return t, nil
+		return t.Hour(), t.Minute(), nil
 	}
-	return time.Time{}, fmt.Errorf("could not parse time: %s", s)
+	return 0, 0, fmt.Errorf("could not parse time: %s", s)
 }
 
 type Response struct {
