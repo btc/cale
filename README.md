@@ -37,7 +37,7 @@ Sun 21 Nov    from 12:00 PM to 3:00 PM
 Mon 22 Nov    02:30 PM
 Mon 22 Nov    05:30 PM
 ```
-💡 Note that the output displays time ranges (i.e. `from 12:00 PM to 3:00 PM`) only when useful. Otherwise, availability is simply represented by start time (e.g. `5:30 PM`).
+💡 Note that availability is shown as a time range (i.e. `from 12:00 PM to 3:00 PM`) only when useful. Otherwise, availability is simply represented by start time (e.g. `5:30 PM`).
 
 ---
 
